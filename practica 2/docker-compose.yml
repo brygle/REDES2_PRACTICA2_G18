@@ -1,0 +1,127 @@
+version: '2'
+services:
+  db:
+    image: 'mongo'
+    container_name: mongodb
+    environment:
+        - PUID=1000
+        - PGID=1000
+    volumes:
+      - /home/mongodb/database:/data/mongodb
+    ports:
+      - "27017:27017"
+    expose:
+      - 27017
+    restart: unless-stopped
+    volumes:
+      - ./data/db:/var/lib/mysql
+    networks:
+      db_network:
+        ipv4_address: 10.10.18.3
+  server1: 
+    build: ./docker/api
+    depends_on:
+      - db
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./docker/api:/code
+    environment: 
+      - PORT=3000
+      - MONGO_URI=mongodb://10.10.18.3:27017/redes2
+      - HOST=0.0.0.0
+      - SERVER_ID=201602782
+    command: "node index.js"
+    networks:
+      service_network:
+        ipv4_address: 172.35.78.4
+      db_network:
+        ipv4_address: 10.10.18.4
+  server2: 
+    build: ./docker/api
+    depends_on:
+      - db
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./docker/api:/code
+    environment: 
+      - PORT=3000
+      - MONGO_URI=mongodb://10.10.18.3:27017/redes2
+      - HOST=0.0.0.0
+      - SERVER_ID=201408470
+    command: "node index.js"
+    networks:
+      service_network:
+        ipv4_address: 172.35.78.5
+      db_network:
+        ipv4_address: 10.10.18.5
+  server3: 
+    build: ./docker/api
+    depends_on:
+      - db
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./docker/api:/code
+    environment: 
+      - PORT=3000
+      - MONGO_URI=mongodb://10.10.18.3:27017/redes2
+      - HOST=0.0.0.0
+      - SERVER_ID=201602440
+    command: "node index.js"
+    networks:
+      service_network:
+        ipv4_address: 172.35.78.6
+      db_network:
+        ipv4_address: 10.10.18.6
+  nginx:
+    # will build ./docker/load_balancer/Dockerfile
+    build: ./docker/load_balancer
+    depends_on:
+      - server1
+      - server2
+      - server3
+    ports:
+      - "4000:4000"
+    networks:
+      service_network:
+        ipv4_address: 172.35.78.10
+      frontend_network:
+        ipv4_address: 192.168.58.10
+  web:
+    build: ./docker/web/frontend
+    expose:
+      - 3000
+    volumes:
+      - ./docker/web/frontend:/code
+    command: "npm start"
+    networks:
+      - frontend_network
+  nginx_local:
+    build: ./docker/web
+    ports:
+      - "80:80"
+    depends_on:
+      - web
+    networks:
+      - frontend_network
+networks:
+  db_network:
+    driver: macvlan
+    ipam:
+      config:
+        - subnet: "10.10.18.0/24"
+          gateway: "10.10.18.1"
+  service_network:
+    driver: macvlan
+    ipam:
+      config:
+        - subnet: "172.35.78.0/24"
+          gateway: "172.35.78.1"
+  frontend_network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.58.0/24
