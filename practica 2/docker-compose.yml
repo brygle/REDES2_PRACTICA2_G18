@@ -24,6 +24,8 @@ services:
       - db
     ports:
       - "3000:3000"
+    expose:
+      - 3000
     volumes:
       - ./docker/api:/code
     environment: 
@@ -43,6 +45,8 @@ services:
       - db
     ports:
       - "3000:3000"
+    expose:
+      - 3000
     volumes:
       - ./docker/api:/code
     environment: 
@@ -62,6 +66,8 @@ services:
       - db
     ports:
       - "3000:3000"
+    expose:
+      - 3000
     volumes:
       - ./docker/api:/code
     environment: 
@@ -98,6 +104,7 @@ services:
     command: "npm start"
     networks:
       - frontend_network
+
   nginx_local:
     build: ./docker/web
     ports:

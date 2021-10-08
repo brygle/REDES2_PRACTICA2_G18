@@ -15,6 +15,7 @@ export const getReporteByCarnet = async (car) => {
     let datos;
     console.log(creds['middleware'] + ':' + creds['port'] + '/getReportes');
     //await fetch('http://localhost:3100/getReportes', requestOptions)
+   // await fetch(creds['middleware'] + ':' + creds['port'] + '/', requestOptions)
     await fetch(creds['middleware'] + ':' + creds['port'] +'/getReportes', requestOptions)
         .then(response => response.json())
         .then(data => {

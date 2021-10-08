@@ -142,6 +142,15 @@ app.post('/getReportes', async (req, res) => {
     }
 })
 
+app.post('/', async (req, res) => {
+    const params = req.body;
+
+    console.log("entro");
+    const result = 
+
+
+})
+
 app.post('/reporte', async (req, res) => {
     const params = req.body;
 
